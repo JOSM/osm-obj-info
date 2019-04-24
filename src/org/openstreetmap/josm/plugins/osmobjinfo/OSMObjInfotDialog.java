@@ -13,8 +13,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -57,13 +59,17 @@ public class OSMObjInfotDialog extends ToggleDialog {
     protected JLabel lbMapillary;
     protected JLabel lbOsmcamp;
 
-    String typeObj;
-    String user = "";
-    String version = "";
-    String idObject = "";
-    String timestamp = "";
-    String idchangeset = "";
-    String coordinates = "";
+    List<AllOsmObjInfo> allSelectedObjInfo;
+
+    public class AllOsmObjInfo {
+        String typeObj;
+        String user = "";
+        String version = "";
+        String idObject = "";
+        String timestamp = "";
+        String idchangeset = "";
+        String coordinates = "";
+    }
 
     public OSMObjInfotDialog() {
         super(tr("OpenStreetMap obj info"),
@@ -71,6 +77,8 @@ public class OSMObjInfotDialog extends ToggleDialog {
                 tr("Open OpenStreetMap obj info window"),
                 Shortcut.registerShortcut("osmObjInfo", tr("Toggle: {0}", tr("OpenStreetMap obj info")), KeyEvent.VK_I, Shortcut.ALT_CTRL_SHIFT), 90);
 
+        allSelectedObjInfo = new ArrayList<>();
+        allSelectedObjInfo.add(new AllOsmObjInfo());
         JPanel panel = new JPanel(new GridLayout(0, 2));
         panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         //user
@@ -231,7 +239,7 @@ public class OSMObjInfotDialog extends ToggleDialog {
 
     private JPanel buildidObject() {
 
-        //OBJ ID 
+        //OBJ ID
         JPanel jpIdobj = new JPanel(new BorderLayout());
 
         lbIdobj = new JLabel();
@@ -251,77 +259,73 @@ public class OSMObjInfotDialog extends ToggleDialog {
         jpIdobj.add(lbIdobj, BorderLayout.LINE_START);
         jpIdobj.add(jpIdobjOptions, BorderLayout.LINE_END);
 
-        //id obj actions 
+        //id obj actions
         lbLinnkIdobj.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                OSMObjInfoActions.openinBrowserIdobj(typeObj, lbIdobj.getText());
+                OSMObjInfoActions.openinBrowserIdobj(allSelectedObjInfo);
             }
         });
         lbCopyIdobj.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                OSMObjInfoActions.copyIdobj(typeObj, lbIdobj.getText());
+                OSMObjInfoActions.copyIdobj(allSelectedObjInfo);
             }
         });
 
         lbOsmDeepHistory.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                OSMObjInfoActions.openinBrowserIdobjOsmDeepHistory(typeObj, lbIdobj.getText());
+                OSMObjInfoActions.openinBrowserIdobjOsmDeepHistory(allSelectedObjInfo);
             }
         });
         return jpIdobj;
     }
 
     public void selection(Collection<? extends OsmPrimitive> selection) {
-        if (selection.size() < 2) {
-            user = "";
-            version = "";
-            idObject = "";
-            timestamp = "";
-            idchangeset = "";
-            coordinates = "";
+        allSelectedObjInfo = new ArrayList<>();
 
-            for (OsmPrimitive element : selection) {
-                if (!element.isNew()) {
-
-                    typeObj = element.getType().toString();
-                    try {
-                        user = element.getUser().getName();
-                        timestamp = new SimpleDateFormat("yyyy/MM/dd hh:mm a").format(element.getTimestamp().getTime());
-                    } catch (NullPointerException e) {
-                        user = UserIdentityManager.getInstance().getUserName();
-                    }
-                    idObject = String.valueOf(element.getId());
-                    version = String.valueOf(element.getVersion());
-                    idchangeset = String.valueOf(element.getChangesetId());
-
-                    DecimalFormat df = new DecimalFormat("#.00000");
-                    coordinates = df.format(element.getBBox().getCenter().lat()) + "," + df.format(element.getBBox().getCenter().lon());
-
+        for (OsmPrimitive element : selection) {
+            if (!element.isNew()) {
+                AllOsmObjInfo info = new AllOsmObjInfo();
+                allSelectedObjInfo.add(info);
+                info.typeObj = element.getType().toString();
+                try {
+                    info.user = element.getUser().getName();
+                    info.timestamp = new SimpleDateFormat("yyyy/MM/dd hh:mm a").format(element.getTimestamp().getTime());
+                } catch (NullPointerException e) {
+                    info.user = UserIdentityManager.getInstance().getUserName();
                 }
+                info.idObject = String.valueOf(element.getId());
+                info.version = String.valueOf(element.getVersion());
+                info.idchangeset = String.valueOf(element.getChangesetId());
+
+                DecimalFormat df = new DecimalFormat("#.00000");
+                info.coordinates = df.format(element.getBBox().getCenter().lat()) + "," + df.format(element.getBBox().getCenter().lon());
             }
-
-            final String txtUser = user;
-            final String txtVersion = version;
-            final String txtIdobject = idObject;
-            final String txtTimestamp = timestamp;
-            final String txtIdChangeset = idchangeset;
-
-            GuiHelper.runInEDT(new Runnable() {
-                @Override
-                public void run() {
-                    lbUser.setText(txtUser);
-                    lbIdChangeset.setText(txtIdChangeset);
-                    lbIdobj.setText(txtIdobject);
-                    lbVersion.setText(txtVersion);
-                    lbTimestamp.setText(txtTimestamp);
-                    lbMapillary.setText(coordinates);
-
-                }
-            });
         }
+        if (allSelectedObjInfo.isEmpty()) allSelectedObjInfo.add(new AllOsmObjInfo());
+
+        AllOsmObjInfo info = allSelectedObjInfo.get(0);
+        final String txtUser = info.user;
+        final String txtVersion = info.version;
+        final String txtIdobject = info.idObject;
+        final String txtTimestamp = info.timestamp;
+        final String txtIdChangeset = info.idchangeset;
+        final String coordinates = info.coordinates;
+
+        GuiHelper.runInEDT(new Runnable() {
+            @Override
+            public void run() {
+                lbUser.setText(txtUser);
+                lbIdChangeset.setText(txtIdChangeset);
+                lbIdobj.setText(txtIdobject);
+                lbVersion.setText(txtVersion);
+                lbTimestamp.setText(txtTimestamp);
+                lbMapillary.setText(coordinates);
+
+            }
+        });
     }
 
     public void getInfoNotes(MouseEvent e) {
@@ -329,16 +333,22 @@ public class OSMObjInfotDialog extends ToggleDialog {
             NoteLayer noteLayer = getLayerManager().getLayersOfType(NoteLayer.class).get(0);
             noteLayer.mouseClicked(e);
             if (!noteLayer.getNoteData().getNotes().isEmpty() && noteLayer.getNoteData().getSelectedNote() != null) {
-                typeObj = "note";
-                lbUser.setText(noteLayer.getNoteData().getSelectedNote().getFirstComment().getUser().getName());
+                allSelectedObjInfo = new ArrayList<>();
+                AllOsmObjInfo info = new AllOsmObjInfo();
+                allSelectedObjInfo.add(info);
+                info.typeObj = "note";
+                info.user = noteLayer.getNoteData().getSelectedNote().getFirstComment().getUser().getName();
+                lbUser.setText(info.user);
                 lbIdChangeset.setText("");
                 if (noteLayer.getNoteData().getSelectedNote().getId() < 0) {
                     lbIdobj.setText("");
                 } else {
-                    lbIdobj.setText(Long.toString(noteLayer.getNoteData().getSelectedNote().getId()));
+                    info.idObject = Long.toString(noteLayer.getNoteData().getSelectedNote().getId());
+                    lbIdobj.setText(info.idObject);
                 }
                 lbVersion.setText("");
-                lbTimestamp.setText(new SimpleDateFormat("yyyy/MM/dd hh:mm a").format(noteLayer.getNoteData().getSelectedNote().getCreatedAt()));
+                info.timestamp = new SimpleDateFormat("yyyy/MM/dd hh:mm a").format(noteLayer.getNoteData().getSelectedNote().getCreatedAt());
+                lbTimestamp.setText(info.timestamp);
             }
         }
     }
@@ -356,7 +366,7 @@ public class OSMObjInfotDialog extends ToggleDialog {
         //add
         jpIMapillary.add(lbMapillary, BorderLayout.LINE_START);
         jpIMapillary.add(jpIMapillaryOptions, BorderLayout.LINE_END);
-        //id obj actions 
+        //id obj actions
         lbLinkMapillary.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
