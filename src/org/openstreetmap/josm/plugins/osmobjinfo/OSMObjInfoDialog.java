@@ -314,7 +314,7 @@ public class OSMObjInfoDialog extends ToggleDialog {
                 if (!element.isNew()) {
                     AllOsmObjInfo info = new AllOsmObjInfo();
                     allSelectedObjInfo.add(info);
-                    info.typeObj = element.getType().toString();
+                    info.typeObj = element.getType().getAPIName();
                     try {
                         info.user = element.getUser().getName();
                         info.timestamp = DateUtils
