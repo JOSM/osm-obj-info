@@ -37,7 +37,7 @@ import org.openstreetmap.josm.tools.date.DateUtils;
 /**
  * @author ruben
  */
-public class OSMObjInfotDialog extends ToggleDialog {
+public class OSMObjInfoDialog extends ToggleDialog {
 
     protected JLabel lbUser;
     protected JLabel lbVersion;
@@ -87,12 +87,11 @@ public class OSMObjInfotDialog extends ToggleDialog {
         String coordinates = "";
     }
 
-    public OSMObjInfotDialog() {
+    public OSMObjInfoDialog() {
         super(tr("OpenStreetMap obj info"),
           "iconosmobjid",
           tr("Open OpenStreetMap obj info window"),
-          Shortcut
-            .registerShortcut("osmObjInfo", tr("Toggle: {0}", tr("OpenStreetMap obj info")), KeyEvent.VK_I,
+          Shortcut.registerShortcut("osmObjInfo", tr("Toggle: {0}", tr("OpenStreetMap obj info")), KeyEvent.VK_I,
               Shortcut.ALT_CTRL_SHIFT), 90);
 
         allSelectedObjInfo = new ArrayList<>();

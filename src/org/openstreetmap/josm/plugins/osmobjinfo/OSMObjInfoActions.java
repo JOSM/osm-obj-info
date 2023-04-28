@@ -16,7 +16,7 @@ import org.openstreetmap.josm.gui.MainApplication;
 import org.openstreetmap.josm.gui.Notification;
 import org.openstreetmap.josm.io.remotecontrol.RemoteControl;
 import org.openstreetmap.josm.io.remotecontrol.handler.LoadAndZoomHandler;
-import org.openstreetmap.josm.plugins.osmobjinfo.OSMObjInfotDialog.AllOsmObjInfo;
+import org.openstreetmap.josm.plugins.osmobjinfo.OSMObjInfoDialog.AllOsmObjInfo;
 import org.openstreetmap.josm.spi.preferences.Config;
 import org.openstreetmap.josm.tools.OpenBrowser;
 
