@@ -16,7 +16,7 @@ public class OSMObjInfoPlugin extends Plugin {
     /** The maximum number of objects to allow to be used in group selections. */
     public static final IntegerProperty MAXIMUM_SELECTION = new IntegerProperty("osm-obj-info.maximum-selection", 5);
 
-    protected static OSMObjInfoDialog objInfotDialog;
+    protected static OSMObjInfoDialog objInfoDialog;
 
     public OSMObjInfoPlugin(PluginInformation info) {
         super(info);
@@ -25,7 +25,7 @@ public class OSMObjInfoPlugin extends Plugin {
     @Override
     public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {
         if (newFrame != null && !GraphicsEnvironment.isHeadless()) {
-            newFrame.addToggleDialog(objInfoDialog = new OSMObjInfotDialog());
+            newFrame.addToggleDialog(objInfoDialog = new OSMObjInfoDialog());
         }
     }
 }
